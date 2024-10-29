@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Paralucent";
+  src: url("public/fonts/ParalucentBold.otf");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Paralucent";
+  src: url("public/fonts/ParalucentDemiBold2.otf");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Paralucent";
+  src: url("public/fonts/ParalucentExtraLight.otf");
+  font-weight: 200;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Paralucent";
+  src: url("public/fonts/ParalucentMedium.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+
+.text-xl {
+  /* Paralucent Extra Light */
+  font-size: 30px;
+  font-family: "Paralucent", sans-serif;
+  font-weight: 200;
+}
+
+.text-2xl {
+  /* Paralucent Medium */
+  font-size: 34px;
+  font-family: "Paralucent", sans-serif;
+  font-weight: 500;
+}
+
+.h3 {
+  /* Paralucent Bold */
+  font-size: 40px;
+  font-family: "Paralucent", sans-serif;
+  font-weight: bold;
+}
