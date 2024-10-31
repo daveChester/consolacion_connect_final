@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import NewsSection from "../pages/news";
+import Footer from "../components/Footer";
 import { AuthContext } from "../AuthContext";
+import "./animations.css";
 
 const images = [
   "/images/image.jpg",
@@ -14,25 +15,8 @@ const images = [
 
 const HomePage = () => {
   const [[page, direction], setPage] = useState([0, 0]);
-  const controls = useAnimation();
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
   const { isAuthenticated } = useContext(AuthContext);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setPage(([prevPage, _]) => [(prevPage + 1) % images.length, 1]);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [page, setPage]);
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
+  const ctaSectionRef = useRef(null);
 
   const variants = {
     enter: (direction) => ({
@@ -51,29 +35,37 @@ const HomePage = () => {
     }),
   };
 
-  const ctaVariants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(([prevPage, _]) => [(prevPage + 1) % images.length, 1]);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [page, setPage]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("cta-visible");
+            observer.disconnect();
+          }
+        });
       },
-    },
-  };
+      {
+        threshold: 0.1,
+      }
+    );
+
+    if (ctaSectionRef.current) {
+      observer.observe(ctaSectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const CTAItem = ({ icon, title, description, linkText, linkHref }) => (
-    <motion.div
-      className="text-background px-3 mb-8 md:mb-0"
-      variants={ctaVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
+    <div className="cta-item text-background px-3 mb-8 md:mb-0">
       <img
         src={`${process.env.PUBLIC_URL}${icon}`}
         alt={`${title} Icon`}
@@ -94,7 +86,7 @@ const HomePage = () => {
           className="ml-2 w-4 h-4"
         />
       </Link>
-    </motion.div>
+    </div>
   );
 
   const { user } = useContext(AuthContext);
@@ -142,7 +134,7 @@ const HomePage = () => {
             <>
               <h2 className="text-gold text-2xl md:text-3xl mb-4">
                 Welcome back to the LCCB family,{" "}
-                <span className="text-background">{user?.firstName}</span>
+                <span className="text-background">{user?.first_name}</span>
                 <span className="text-background">!</span>
               </h2>
               <p className="text-background font-inter font-light text-sm md:text-base leading-relaxed mt-5">
@@ -186,21 +178,10 @@ const HomePage = () => {
         </div>
       </div>
 
-      <motion.div
-        ref={ref}
-        className="p-10 z-10 w-full"
+      <div
+        ref={ctaSectionRef}
+        className="cta-section p-10 z-10 w-full"
         style={{ background: "linear-gradient(120deg, #24243F, #2F62BE)" }}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        variants={{
-          hidden: {},
-          visible: {
-            transition: {
-              staggerChildren: 0.2,
-              delayChildren: 0.1,
-            },
-          },
-        }}
       >
         <div className="flex flex-col md:flex-row justify-between max-w-7xl mx-auto mb-8">
           <CTAItem
@@ -225,9 +206,10 @@ const HomePage = () => {
             linkHref="/give-back"
           />
         </div>
-      </motion.div>
+      </div>
 
       <NewsSection />
+      <Footer />
     </div>
   );
 };

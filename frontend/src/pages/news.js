@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { AuthContext } from "../AuthContext";
 import "swiper/css";
 
 const News = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   const swiperRef = React.useRef(null);
 
   const newsItems = [
@@ -35,8 +37,37 @@ const News = () => {
     },
   ];
 
+  const AuthOverlay = () => (
+    <div className="group">
+      <div className="absolute inset-0 m-10 mt-[100px] mb-[100px] bg-text/85 group-hover:bg-text/95 transition ease-linear backdrop-blur-md rounded-3xl z-10 flex items-center justify-center">
+        <div className="bg-background group-hover:shadow-neon rounded-xl p-8 max-w-md mx-4 relative transition ease-linear ">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-darker-blue mb-8">
+              Access exclusive news and events
+            </h3>
+            <div className="flex gap-4 justify-center">
+              <Link
+                to="/login"
+                className="bg-gold text-darker-blue px-6 py-2 rounded-full font-medium hover:bg-gold/90 transition-all duration-300"
+              >
+                Log In
+              </Link>
+              <p className="text-text mt-2 font-inter font-medium">or</p>
+              <Link
+                to="/signup"
+                className="border border-gold text-gold px-6 py-2 rounded-full font-medium hover:bg-gold/10 transition-all duration-300"
+              >
+                Sign Up
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-background relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center flex-wrap md:flex-wrap lg:flex-nowrap lg:flex-row lg:justify-between gap-8">
           <div className="w-full flex justify-between flex-col lg:w-2/5">
@@ -49,30 +80,35 @@ const News = () => {
                 Stay updated with the latest news, events, and success stories
                 from the LCCB alumni community.
               </p>
-              <Link
-                to="/news"
-                className="cursor-pointer border border-text/50 shadow-sm rounded-full py-3.5 px-7 w-52 lg:mx-0 mx-auto flex justify-center text-text/70 font-inter font-medium transition-all duration-300 hover:bg-gold hover:text-darker-blue/80 hover:border-gold"
-              >
-                View All News
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/news"
+                  className="cursor-pointer border border-text/50 shadow-sm rounded-full py-3.5 px-7 w-52 lg:mx-0 mx-auto flex justify-center text-text/70 font-inter font-medium transition-all duration-300 hover:bg-gold hover:text-darker-blue/80 hover:border-gold"
+                >
+                  View All News
+                </Link>
+              )}
             </div>
-            <div className="flex items-center lg:justify-start justify-center lg:mt-0 mt-8 gap-9 mb-4">
-              <button
-                onClick={() => swiperRef.current.swiper.slidePrev()}
-                className="group flex justify-center items-center border border-solid border-gold size-12 transition-all duration-500 rounded-full hover:bg-gold"
-              >
-                <ChevronLeft className="h-6 w-6 text-gold group-hover:text-darker-blue" />
-              </button>
-              <button
-                onClick={() => swiperRef.current.swiper.slideNext()}
-                className="group flex justify-center items-center border border-solid border-gold size-12 transition-all duration-500 rounded-full hover:bg-gold"
-              >
-                <ChevronRight className="h-6 w-6 text-gold group-hover:text-darker-blue" />
-              </button>
-            </div>
+            {isAuthenticated && (
+              <div className="flex items-center lg:justify-start justify-center lg:mt-0 mt-8 gap-9 mb-4">
+                <button
+                  onClick={() => swiperRef.current.swiper.slidePrev()}
+                  className="group flex justify-center items-center border border-solid border-gold size-12 transition-all duration-500 rounded-full hover:bg-gold"
+                >
+                  <ChevronLeft className="h-6 w-6 text-gold group-hover:text-darker-blue" />
+                </button>
+                <button
+                  onClick={() => swiperRef.current.swiper.slideNext()}
+                  className="group flex justify-center items-center border border-solid border-gold size-12 transition-all duration-500 rounded-full hover:bg-gold"
+                >
+                  <ChevronRight className="h-6 w-6 text-gold group-hover:text-darker-blue" />
+                </button>
+              </div>
+            )}
           </div>
 
-          <div className="w-full lg:w-3/5">
+          <div className="w-full lg:w-3/5 relative">
+            {!isAuthenticated && <AuthOverlay />}
             <Swiper
               ref={swiperRef}
               slidesPerView={2}
@@ -92,6 +128,7 @@ const News = () => {
                   spaceBetween: 32,
                 },
               }}
+              className={!isAuthenticated ? "blur-sm" : ""}
             >
               {newsItems.map((item, index) => (
                 <SwiperSlide key={index} className="group">
@@ -108,13 +145,15 @@ const News = () => {
                   <p className="text-text font-inter transition-all duration-500 mb-8">
                     {item.excerpt}
                   </p>
-                  <Link
-                    to="/news"
-                    className="cursor-pointer flex items-center gap-2 text-lg text-gold font-inter font-medium"
-                  >
-                    Read more
-                    <ChevronRight className="size-4" />
-                  </Link>
+                  {isAuthenticated && (
+                    <Link
+                      to="/news"
+                      className="cursor-pointer flex items-center gap-2 text-lg text-gold font-inter font-medium"
+                    >
+                      Read more
+                      <ChevronRight className="size-4" />
+                    </Link>
+                  )}
                 </SwiperSlide>
               ))}
             </Swiper>

@@ -19,7 +19,10 @@ module.exports = {
         paralucent: ["Paralucent", "sans-serif"],
         inter: ["Inter", "sans-serif"],
       },
+      boxShadow: {
+        neon: "0 0 10px #24243F, 0 0 20px #A9A9DF", //  Centered shadow
+      },
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 };

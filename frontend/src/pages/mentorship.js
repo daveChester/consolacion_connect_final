@@ -1,10 +1,8 @@
 import React from "react";
-import Header from "../components/Header.js";
 
 const Mentorship = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-paralucent text-darker-blue mb-4">
           Journeys

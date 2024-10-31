@@ -1,4 +1,3 @@
-// frontend/src/App.js
 import React, { useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, AuthContext } from "./AuthContext";
@@ -18,9 +17,19 @@ import JobBoard from "./pages/job-board";
 import NewsPage from "./pages/news";
 import GiveBack from "./pages/give-back";
 
+// Import admin-related components
+import AdminApp from "./admin/AdminApp";
+import AdminLogin from "./admin/pages/AdminLogin";
+import AdminDashboard from "./admin/pages/AdminDashboard";
+
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin } = useContext(AuthContext);
+  return isAuthenticated && isAdmin ? children : <Navigate to="/admin/login" />;
 };
 
 const App = () => {
@@ -30,6 +39,34 @@ const App = () => {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/*"
+            element={
+              <AdminRoute>
+                <AdminApp />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRoute>
+                <AdminApp />
+              </AdminRoute>
+            }
+          />
+
+          {/* Main App Routes */}
           <Route path="/" element={<Navigate to="/landing-page" />} />
           <Route path="/landing-page" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
