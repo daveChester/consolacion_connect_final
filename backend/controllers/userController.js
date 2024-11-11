@@ -1,4 +1,4 @@
-const db = require("../db/dbConfig");
+const db = require("../db/dbConfig.js");
 // const bcrypt = require("bcrypt"); // You can now include bcrypt if you want to hash passwords
 
 exports.checkEmail = async (req, res) => {

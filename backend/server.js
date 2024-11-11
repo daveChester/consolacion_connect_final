@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./db/dbConfig");
 const userController = require("./controllers/userController.js");
-const jwt = require("jsonwebtoken"); // Make sure jsonwebtoken is installed
+const jwt = require("jsonwebtoken");
+const newsRouter = require("./src/routes/news.js");
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use((req, res, next) => {
   console.log("Request body:", req.body);
   next();
 });
+
+app.use("/", newsRouter); // <--- news router mounted here
 
 // User routes
 app.get("/api/users", async (req, res) => {
