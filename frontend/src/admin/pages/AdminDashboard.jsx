@@ -1,104 +1,150 @@
-import React, { useState } from "react";
-import AdminHeader from "../components/AdminHeader";
-import NewsManagement from "./NewsManagement";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("news"); // Default to news tab
+const NewsManagement = () => {
+  const [news, setNews] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    excerpt: "",
+    image: null,
+  });
 
-  const tabItems = [
-    {
-      id: "alumni",
-      label: "Alumni Management",
-      content: "Alumni Management Content",
+  const api = axios.create({
+    baseURL: "http://localhost:5000",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    {
-      id: "honorem",
-      label: "Honorem Management",
-      content: "Honorem Management Content",
-    },
-    {
-      id: "jobs",
-      label: "Jobs Management",
-      content: "Jobs Management Content",
-    },
-    {
-      id: "journey",
-      label: "Journey Management",
-      content: "Journey Management Content",
-    },
-    {
-      id: "mentorship",
-      label: "Mentorship Management",
-      content: "Mentorship Management Content",
-    },
-    { id: "news", label: "News Management", content: <NewsManagement /> },
-  ];
+  });
 
-  const statsCards = [
-    {
-      title: "Total Alumni",
-      value: "0",
-      description: "Registered alumni in the system",
-    },
-    {
-      title: "Active Jobs",
-      value: "0",
-      description: "Currently posted job opportunities",
-    },
-    {
-      title: "Mentorship Programs",
-      value: "0",
-      description: "Ongoing mentorship programs",
-    },
-    {
-      title: "Latest News",
-      value: "0",
-      description: "Published news articles",
-    },
-  ];
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    const response = await api.get("/api/news");
+    setNews(response.data);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("excerpt", formData.excerpt);
+    if (formData.image) formDataToSend.append("image", formData.image);
+
+    await api.post("/api/news", formDataToSend, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setFormData({ title: "", excerpt: "", image: null });
+    fetchNews();
+  };
+
+  const handleDelete = async (id) => {
+    await api.delete(`/api/news/${id}`);
+    setNews(news.filter((item) => item.id !== id));
+  };
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <AdminHeader />
-      <main className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="space-y-6 p-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="title"
+          placeholder="News Title"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          className="input input-bordered w-full"
+          required
+        />
+        <textarea
+          name="excerpt"
+          placeholder="News Excerpt"
+          value={formData.excerpt}
+          onChange={(e) =>
+            setFormData({ ...formData, excerpt: e.target.value })
+          }
+          className="textarea textarea-bordered w-full h-24"
+          required
+        />
+        <input
+          type="file"
+          name="image"
+          onChange={(e) =>
+            setFormData({ ...formData, image: e.target.files[0] })
+          }
+          className="file-input file-input-bordered w-full"
+          accept="image/*"
+        />
+        <button type="submit" className="btn btn-primary w-full">
+          Add News
+        </button>
+      </form>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {statsCards.map((stat, index) => (
-            <div key={index} className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h3 className="text-base-content/60 font-semibold">
-                  {stat.title}
-                </h3>
-                <p className="text-3xl font-bold my-2">{stat.value}</p>
-                <p className="text-sm text-base-content/70">
-                  {stat.description}
-                </p>
-              </div>
+      <div className="space-y-4">
+        {news.map((item) => (
+          <div key={item.id} className="card bg-white shadow-xl">
+            <div className="card-body">
+              <h3 className="card-title">{item.title}</h3>
+              <p>{item.excerpt}</p>
+              {item.image && (
+                <img
+                  src={`http://localhost:5000${item.image}`}
+                  alt={item.title}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              )}
+              <button
+                onClick={() => handleDelete(item.id)}
+                className="btn btn-error"
+              >
+                Delete
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-        {/* Tabs */}
-        <div className="card bg-base-100 shadow-xl">
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState("news");
+
+  const tabs = ["news", "alumni", "honorem", "jobs", "journey", "mentorship"];
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <nav className="navbar bg-blue-900 text-white">
+        <h1 className="text-xl px-4">Admin Dashboard</h1>
+      </nav>
+
+      <main className="p-6">
+        <div className="card bg-white shadow-xl">
           <div className="card-body">
             <div className="tabs tabs-bordered">
-              {tabItems.map((tab) => (
+              {tabs.map((tab) => (
                 <button
-                  key={tab.id}
-                  className={`tab ${activeTab === tab.id ? "tab-active" : ""}`}
-                  onClick={() => setActiveTab(tab.id)}
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  aria-controls={`panel-${tab.id}`}
+                  key={tab}
+                  className={`tab tab-bordered ${
+                    activeTab === tab ? "tab-active" : ""
+                  }`}
+                  onClick={() => setActiveTab(tab)}
                 >
-                  {tab.label}
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)} Management
                 </button>
               ))}
             </div>
-            <div id={`panel-${activeTab}`} role="tabpanel" className="mt-4">
-              {tabItems.find((tab) => tab.id === activeTab)?.content}
+
+            <div className="mt-4">
+              {activeTab === "news" ? (
+                <NewsManagement />
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}{" "}
+                  Management coming soon
+                </div>
+              )}
             </div>
           </div>
         </div>

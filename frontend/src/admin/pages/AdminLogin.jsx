@@ -1,7 +1,7 @@
+// admin/pages/AdminLogin.jsx
 import React, { useState, useContext } from "react";
-import { AuthContext } from "../../AuthContext";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -10,23 +10,20 @@ const AdminLogin = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/admin/login",
-        {
-          email,
-          password,
-        }
-      );
 
-      if (response.data) {
-        login(response.data);
-        navigate("/admin/dashboard");
-      }
-    } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+    if (email === "admin@example.com" && password === "admin123") {
+      login({
+        user: {
+          email: "admin@example.com",
+          isAdmin: true,
+        },
+        token: "admin-token", // Since we don't have a backend, this is just for structure
+      });
+      navigate("/admin/dashboard");
+    } else {
+      setError("Invalid admin credentials");
     }
   };
 
@@ -60,6 +57,7 @@ const AdminLogin = () => {
               </label>
               <input
                 type="password"
+                placeholder="Enter your password"
                 className="input input-bordered"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -67,7 +65,9 @@ const AdminLogin = () => {
               />
             </div>
             <div className="form-control mt-6">
-              <button className="btn btn-primary">Login</button>
+              <button type="submit" className="btn btn-primary">
+                Login
+              </button>
             </div>
           </form>
         </div>
