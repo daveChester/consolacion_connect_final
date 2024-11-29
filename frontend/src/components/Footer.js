@@ -71,7 +71,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Middle Column - Different content based on auth status */}
+          {/* Middle Column - Different content based on our authContext status */}
           <div className="lg:col-span-1">
             {isAuthenticated ? (
               <>
@@ -137,7 +137,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright Section with Additional Info */}
+        {/* Copyright Section    */}
         <div className="mt-12 pt-6 border-t border-background/20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="text-background/60 text-sm font-inter font-light tracking-wide">

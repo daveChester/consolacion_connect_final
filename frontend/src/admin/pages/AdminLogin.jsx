@@ -1,4 +1,4 @@
-// admin/pages/AdminLogin.jsx
+//frontend/AdminLogin.jsx
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
@@ -19,7 +19,7 @@ const AdminLogin = () => {
           email: "admin@example.com",
           isAdmin: true,
         },
-        token: "admin-token", // Since we don't have a backend, this is just for structure
+        token: "admin-token",
       });
       navigate("/admin/dashboard");
     } else {
@@ -28,47 +28,50 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center">
-      <div className="card w-full max-w-sm bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title justify-center mb-2">Admin Login</h2>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="w-full max-w-sm bg-white shadow-lg rounded-lg">
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-center mb-6 text-black">
+            Admin Login
+          </h2>
           {error && (
-            <div className="alert alert-error mb-4">
-              <span>{error}</span>
+            <div className="mb-4 p-4 bg-black/5 border border-black/10 rounded-lg">
+              <span className="text-black">{error}</span>
             </div>
           )}
           <form onSubmit={handleSubmit}>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Email</span>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-black mb-2">
+                Email
               </label>
               <input
                 type="email"
                 placeholder="admin@example.com"
-                className="input input-bordered"
+                className="w-full px-4 py-2 border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Password</span>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-black mb-2">
+                Password
               </label>
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="input input-bordered"
+                className="w-full px-4 py-2 border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
-            <div className="form-control mt-6">
-              <button type="submit" className="btn btn-primary">
-                Login
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black/5"
+            >
+              Login
+            </button>
           </form>
         </div>
       </div>

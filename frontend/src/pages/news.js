@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { AuthContext } from "../AuthContext"; // Make sure this path is correct
+import { AuthContext } from "../AuthContext";
 import axios from "axios";
 import "swiper/css";
 
@@ -88,11 +88,13 @@ const News = () => {
           {/* ... (Left-side content - headings, View All News link)  */}
           <div className="w-full flex justify-between flex-col lg:w-2/5">
             <div className="block lg:text-left text-center">
-              <h2 className="text-6xl font-bold text-text leading-[3.25rem] mb-5 font-inter">
+              <h2 className="text-6xl text-darker-blue leading-[3.25rem] mb-5 font-paralucent">
                 Latest{" "}
-                <span className="text-gold text-6xl font-inter">News</span>
+                <span className="text-gold text-6xl font-paralucent font-semibold">
+                  News
+                </span>
               </h2>
-              <p className="text-text font-inter mb-10 max-lg:max-w-xl max-lg:mx-auto text-lg">
+              <p className="text-text/70 font-medium font-inter mb-10 max-lg:max-w-xl max-lg:mx-auto text-lg">
                 Stay updated with the latest news, events, and success stories
                 from the LCCB alumni community.
               </p>
@@ -127,7 +129,7 @@ const News = () => {
             {!isAuthenticated && <AuthOverlay />}
             {newsItems.length === 0 ? (
               <div className="flex justify-center items-center min-h-[300px] border-2 border-dashed border-text/20 rounded-3xl">
-                <p className="text-text/50 text-xl font-inter">
+                <p className="text-text/50 text-lg">
                   No news available at the moment
                 </p>
               </div>
@@ -159,7 +161,7 @@ const News = () => {
                       <img
                         src={`${BASE_URL}${item.image}`}
                         alt={item.title}
-                        className="rounded-2xl w-full h-64 object-cover"
+                        className="rounded-2xl w-full h-full object-cover"
                       />
                     </div>
                     <h3 className="text-3xl font-paralucent font-medium text-text leading-8 mb-4 group-hover:text-gold/70">
