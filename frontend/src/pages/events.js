@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../AuthContext";
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 
 const mockEvents = [
   {
@@ -39,8 +39,8 @@ const Event = () => {
   );
 
   const EventItem = ({ event }) => (
-    <div className="p-4 border-b border-text/20">
-      <h3 className="text-xl font-bold text-text mb-2">{event.title}</h3>
+    <div className="p-8 border-b border-text/20">
+      <h3 className="text-xl font-semibold text-text mb-2">{event.title}</h3>
       <p className="text-text mb-1 font-inter">{event.date}</p>
       <p className="text-text mb-4 font-inter">{event.description}</p>
       <Link
@@ -56,10 +56,13 @@ const Event = () => {
   return (
     <section className="py-20 bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-6xl font-bold text-text mb-5 text-center">
-          Upcoming <span className="text-gold">Events</span>
+        <h2 className="text-6xl text-darker-blue leading-[3.25rem] mb-5 font-paralucent">
+          Upcoming{" "}
+          <span className="text-gold text-6xl font-paralucent font-semibold">
+            Events
+          </span>
         </h2>
-        <p className="text-text mb-10 text-lg text-center">
+        <p className="text-text mb-10 text-lg text-left">
           Stay updated with our latest events and opportunities to connect.
         </p>
 
@@ -71,6 +74,7 @@ const Event = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <Search className="absolute left-3 top-3.5 h-5 w-5 text-text/50" />
         </div>
 
         <div>
@@ -84,17 +88,6 @@ const Event = () => {
             ))
           )}
         </div>
-
-        {isAuthenticated && (
-          <div className="mt-10 text-center">
-            <Link
-              to="/post-event"
-              className="bg-gold text-darker-blue py-2 px-4 rounded font-medium hover:bg-gold/90 transition-all duration-300"
-            >
-              Post a New Event
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   );

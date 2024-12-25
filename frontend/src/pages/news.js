@@ -85,7 +85,7 @@ const News = () => {
     <section className="py-20 bg-background relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center flex-wrap md:flex-wrap lg:flex-nowrap lg:flex-row lg:justify-between gap-8">
-          {/* ... (Left-side content - headings, View All News link)  */}
+          {/* ... (Left-side contentt)  */}
           <div className="w-full flex justify-between flex-col lg:w-2/5">
             <div className="block lg:text-left text-center">
               <h2 className="text-6xl text-darker-blue leading-[3.25rem] mb-5 font-paralucent">

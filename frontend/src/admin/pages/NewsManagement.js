@@ -13,7 +13,7 @@ const NewsManagement = () => {
     excerpt: "",
     image: null,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for form submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteId, setDeleteId] = useState(null); // State for tracking which item is being deleted
 
   const fetchNews = useCallback(async () => {

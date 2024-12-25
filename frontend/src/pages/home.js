@@ -177,13 +177,13 @@ const HomePage = () => {
           )}
         </div>
       </div>
-
+      {/* CTA SECTION */}
       <div
         ref={ctaSectionRef}
         className="cta-section p-10 z-10 w-full"
         style={{ background: "linear-gradient(120deg, #24243F, #2F62BE)" }}
       >
-        <div className="flex flex-col md:flex-row justify-between max-w-7xl mx-auto mb-8">
+        <div className="flex flex-col md:flex-row justify-between max-w-7xl mx-auto mb-8 px-6">
           <CTAItem
             icon="/images/rocket.svg"
             title="Advance Your Career"

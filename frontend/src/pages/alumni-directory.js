@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 import axios from "axios";
 
 const AlumniDirectory = () => {
@@ -145,8 +146,11 @@ const AlumniDirectory = () => {
     <div className="min-h-screen bg-background px-6 py-12">
       <div className="max-w-7xl mx-auto">
         <div className="mb-12">
-          <h3 className="text-4xl font-paralucent text-gold mb-2">
-            Alumni Directory
+          <h3 className="text-6xl text-darker-blue leading-[3.25rem] mb-5 font-paralucent">
+            Alumni{" "}
+            <span className="text-gold font-paralucent font-semibold">
+              Directory
+            </span>
           </h3>
           <p className="text-text/60 font-inter font-medium">
             Connect with fellow LCCB alumni and expand your professional
@@ -164,18 +168,7 @@ const AlumniDirectory = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 border border-text/30 rounded-md pl-10 focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
               />
-              <svg
-                className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
