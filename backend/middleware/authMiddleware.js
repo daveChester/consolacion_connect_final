@@ -17,7 +17,7 @@ const authenticate = (req, res, next) => {
     });
   }
 
-  // Extract the token (remove "Bearer " prefix)
+  // Extract the token
   const token = authHeader.split(" ")[1];
 
   try {
