@@ -7,15 +7,14 @@ import LandingPage from "./pages/landing-page";
 import HomePage from "./pages/home";
 import SignUp from "./pages/sign-up";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import LoginPage from "./pages/login";
 import AlumniDirectory from "./pages/alumni-directory";
 import Events from "./pages/events";
-import Mentorship from "./pages/mentorship";
 import Journeys from "./pages/journeys";
-import Honorem from "./pages/honorem";
-import JobBoard from "./pages/job-board";
 import NewsPage from "./pages/news";
 import GiveBack from "./pages/give-back";
+import Profile from "./pages/profile"; // Add this import
 
 // Import admin-related components
 import AdminApp from "./admin/AdminApp";
@@ -85,12 +84,25 @@ const App = () => {
 
           {/* Protected routes */}
           <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <>
+                  <Header logout={logout} />
+                  <Profile />
+                  <Footer />
+                </>
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/alumni-directory"
             element={
               <PrivateRoute>
                 <>
                   <Header logout={logout} />
                   <AlumniDirectory />
+                  <Footer />
                 </>
               </PrivateRoute>
             }
@@ -102,17 +114,7 @@ const App = () => {
                 <>
                   <Header logout={logout} />
                   <Events />
-                </>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/mentorship"
-            element={
-              <PrivateRoute>
-                <>
-                  <Header logout={logout} />
-                  <Mentorship />
+                  <Footer />
                 </>
               </PrivateRoute>
             }
@@ -124,28 +126,7 @@ const App = () => {
                 <>
                   <Header logout={logout} />
                   <Journeys />
-                </>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/honorem"
-            element={
-              <PrivateRoute>
-                <>
-                  <Header logout={logout} />
-                  <Honorem />
-                </>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/job-board"
-            element={
-              <PrivateRoute>
-                <>
-                  <Header logout={logout} />
-                  <JobBoard />
+                  <Footer />
                 </>
               </PrivateRoute>
             }
@@ -157,6 +138,7 @@ const App = () => {
                 <>
                   <Header logout={logout} />
                   <NewsPage />
+                  <Footer />
                 </>
               </PrivateRoute>
             }
@@ -168,6 +150,7 @@ const App = () => {
                 <>
                   <Header logout={logout} />
                   <GiveBack />
+                  <Footer />
                 </>
               </PrivateRoute>
             }

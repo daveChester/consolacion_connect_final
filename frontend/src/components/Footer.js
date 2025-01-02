@@ -9,10 +9,8 @@ const Footer = () => {
   const navigationLinks = [
     { label: "Home", path: "/home" },
     { label: "Alumni Directory", path: "/alumni-directory" },
-    { label: "Job Board", path: "/job-board" },
     { label: "News", path: "/news" },
     { label: "Events", path: "/events" },
-    { label: "Mentorship", path: "/mentorship" },
     { label: "Journeys", path: "/journeys" },
     { label: "Give Back", path: "/give-back" },
   ];

@@ -138,7 +138,7 @@ const HomePage = () => {
                 <span className="text-background">!</span>
               </h2>
               <p className="text-background font-inter font-light text-sm md:text-base leading-relaxed mt-5">
-                Share your story, find a mentor, or connect with fellow alumni.
+                Share your story or connect with fellow alumni.
               </p>
             </>
           ) : (
@@ -187,9 +187,9 @@ const HomePage = () => {
           <CTAItem
             icon="/images/rocket.svg"
             title="Advance Your Career"
-            description="Gain valuable insights, explore job opportunities, and connect with mentors."
+            description="Gain valuable insights, explore job opportunities, and grow professionally."
             linkText="Discover Resources"
-            linkHref="/job-board"
+            linkHref="/alumni-directory"
           />
           <CTAItem
             icon="/images/lccb.svg"

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, User } from "lucide-react";
 import { AuthContext } from "../AuthContext";
 
 const Header = () => {
   const location = useLocation();
   const [isConnectOpen, setIsConnectOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { isAuthenticated, logout } = useContext(AuthContext);
@@ -30,14 +31,8 @@ const Header = () => {
 
   const connectSubmenu = [
     { path: "/events", label: "Events" },
-    { path: "/mentorship", label: "Mentorship" },
     { path: "/journeys", label: "Journeys" },
-    { path: "/honorem", label: "Honorem" },
   ];
-
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
 
   const handleLogout = () => {
     logout();
@@ -70,14 +65,6 @@ const Header = () => {
                 className={`${isActive("/alumni-directory")} transition-colors`}
               >
                 Alumni Directory
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/job-board"
-                className={`${isActive("/job-board")} transition-colors`}
-              >
-                Job Board
               </Link>
             </li>
             <li>
@@ -150,13 +137,34 @@ const Header = () => {
         <nav className="flex items-center pr-4">
           <NavItems />
           {isAuthenticated ? (
-            <div className="ml-6 flex items-center">
+            <div className="ml-6 relative">
               <button
-                onClick={handleLogout}
-                className="bg-gold text-darker-blue rounded hover:bg-opacity-90 ml-5 px-4 py-2 font-inter text-[15px] font-normal"
+                className="flex items-center space-x-2 text-text hover:text-gold"
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                onMouseEnter={() => setIsProfileOpen(true)}
               >
-                Log out
+                <User size={20} />
+                <span>Profile</span>
               </button>
+              {isProfileOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden"
+                  onMouseLeave={() => setIsProfileOpen(false)}
+                >
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-text hover:bg-gold/90"
+                  >
+                    View Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-text hover:bg-gold/90"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="ml-10 flex items-center">

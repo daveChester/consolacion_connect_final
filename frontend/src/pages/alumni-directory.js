@@ -4,55 +4,47 @@ import { Search } from "lucide-react";
 import axios from "axios";
 
 const AlumniDirectory = () => {
-  const [alumni, setAlumni] = useState([]);
-  const [filteredAlumni, setFilteredAlumni] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    graduationYear: "",
-    degree: "",
-    industry: "",
-    mentorStatus: "",
+    batchYear: "",
+    course: "",
   });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAlumni = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/alumni");
-        setAlumni(response.data);
-        setFilteredAlumni(response.data);
+        const response = await axios.get("http://localhost:5000/api/users");
+        setUsers(response.data);
+        setFilteredUsers(response.data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching alumni:", error);
+        console.error("Error fetching users:", error);
         setIsLoading(false);
       }
     };
 
-    fetchAlumni();
+    fetchUsers();
   }, []);
 
   useEffect(() => {
-    const filtered = alumni.filter((alumnus) => {
-      const matchesSearch =
-        `${alumnus.first_name} ${alumnus.last_name}`
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        alumnus.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        alumnus.current_job.toLowerCase().includes(searchQuery.toLowerCase());
+    const filtered = users.filter((user) => {
+      const matchesSearch = `${user.first_name} ${user.last_name}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
       const matchesFilters =
-        (!filters.graduationYear ||
-          alumnus.graduation_year.toString() === filters.graduationYear) &&
-        (!filters.degree || alumnus.degree.includes(filters.degree)) &&
-        (!filters.industry || alumnus.industry === filters.industry) &&
-        (!filters.mentorStatus ||
-          alumnus.mentor_status.toString() === filters.mentorStatus);
+        (!filters.batchYear ||
+          user.batch_year.toString() === filters.batchYear) &&
+        (!filters.course || user.course === filters.course);
 
       return matchesSearch && matchesFilters;
     });
 
-    setFilteredAlumni(filtered);
-  }, [searchQuery, filters, alumni]);
+    setFilteredUsers(filtered);
+  }, [searchQuery, filters, users]);
 
   const FilterSelect = ({ label, name, options, value, onChange }) => (
     <div className="w-full md:w-auto">
@@ -79,48 +71,39 @@ const AlumniDirectory = () => {
     </div>
   );
 
-  const AlumniCard = ({ alumnus }) => (
+  const UserCard = ({ user }) => (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
       <div className="p-6">
         <div className="flex items-center space-x-4">
           <div className="w-16 h-16 bg-blue1 rounded-full flex items-center justify-center">
             <span className="text-2xl text-white font-semibold">
-              {`${alumnus.first_name[0]}${alumnus.last_name[0]}`}
+              {`${user.first_name[0]}${user.last_name[0]}`}
             </span>
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-semibold text-text">
-              {`${alumnus.first_name} ${alumnus.last_name}`}
+              {`${user.first_name} ${user.last_name}`}
             </h3>
-            <p className="text-blue3 font-medium">{alumnus.current_job}</p>
-            <p className="text-gray-600">{alumnus.company}</p>
+            <p className="text-blue3 font-medium">{user.student_id}</p>
           </div>
         </div>
 
         <div className="mt-4 space-y-2">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Degree:</span> {alumnus.degree}
+            <span className="font-medium">Course:</span> {user.course}
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Graduation Year:</span>{" "}
-            {alumnus.graduation_year}
+            <span className="font-medium">Batch Year:</span> {user.batch_year}
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Industry:</span> {alumnus.industry}
+            <span className="font-medium">Status:</span>{" "}
+            {user.is_verified ? "Verified" : "Pending Verification"}
           </p>
         </div>
 
-        {alumnus.mentor_status && (
-          <div className="mt-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gold/20 text-gold">
-              Available for Mentoring
-            </span>
-          </div>
-        )}
-
         <div className="mt-6 flex justify-end">
           <Link
-            to={`/alumni/${alumnus.id}`}
+            to={`/users/${user.user_id}`}
             className="text-blue3 hover:text-blue3/80 font-medium flex items-center"
           >
             View Profile
@@ -142,19 +125,26 @@ const AlumniDirectory = () => {
     </div>
   );
 
+  // Get unique batch years and courses from users
+  const batchYears = [...new Set(users.map((user) => user.batch_year))]
+    .filter(Boolean)
+    .sort();
+  const courses = [...new Set(users.map((user) => user.course))].filter(
+    Boolean
+  );
+
   return (
     <div className="min-h-screen bg-background px-6 py-12">
       <div className="max-w-7xl mx-auto">
         <div className="mb-12">
           <h3 className="text-6xl text-darker-blue leading-[3.25rem] mb-5 font-paralucent">
-            Alumni{" "}
+            Student{" "}
             <span className="text-gold font-paralucent font-semibold">
               Directory
             </span>
           </h3>
           <p className="text-text/60 font-inter font-medium">
-            Connect with fellow LCCB alumni and expand your professional
-            network.
+            Connect with LCCB students and alumni
           </p>
         </div>
 
@@ -163,7 +153,7 @@ const AlumniDirectory = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search by name, company, or job title..."
+                placeholder="Search by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 border border-text/30 rounded-md pl-10 focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
@@ -171,45 +161,23 @@ const AlumniDirectory = () => {
               <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FilterSelect
-                label="Graduation Year"
-                name="graduationYear"
-                options={["2020", "2021", "2022", "2023"]}
-                value={filters.graduationYear}
+                label="Batch Year"
+                name="batchYear"
+                options={batchYears}
+                value={filters.batchYear}
                 onChange={(e) =>
-                  setFilters({ ...filters, graduationYear: e.target.value })
+                  setFilters({ ...filters, batchYear: e.target.value })
                 }
               />
               <FilterSelect
-                label="Degree"
-                name="degree"
-                options={[
-                  "BS Information Technology",
-                  "BS Computer Science",
-                  "BS Business Administration",
-                ]}
-                value={filters.degree}
+                label="Course"
+                name="course"
+                options={courses}
+                value={filters.course}
                 onChange={(e) =>
-                  setFilters({ ...filters, degree: e.target.value })
-                }
-              />
-              <FilterSelect
-                label="Industry"
-                name="industry"
-                options={["Technology", "Finance", "Healthcare", "Education"]}
-                value={filters.industry}
-                onChange={(e) =>
-                  setFilters({ ...filters, industry: e.target.value })
-                }
-              />
-              <FilterSelect
-                label="Mentor Status"
-                name="mentorStatus"
-                options={["true", "false"]}
-                value={filters.mentorStatus}
-                onChange={(e) =>
-                  setFilters({ ...filters, mentorStatus: e.target.value })
+                  setFilters({ ...filters, course: e.target.value })
                 }
               />
             </div>
@@ -222,13 +190,13 @@ const AlumniDirectory = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAlumni.map((alumnus) => (
-              <AlumniCard key={alumnus.id} alumnus={alumnus} />
+            {filteredUsers.map((user) => (
+              <UserCard key={user.user_id} user={user} />
             ))}
-            {filteredAlumni.length === 0 && (
+            {filteredUsers.length === 0 && (
               <div className="col-span-full text-center py-12">
                 <h3 className="text-xl font-medium text-text mb-2">
-                  No alumni found
+                  No users found
                 </h3>
                 <p className="text-text/70">
                   Try adjusting your search or filters

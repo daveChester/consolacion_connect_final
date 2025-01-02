@@ -8,51 +8,47 @@ const SignUpPage = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [graduationYear, setGraduationYear] = useState("");
-  const [degree, setDegree] = useState("");
-  const [currentJob, setCurrentJob] = useState("");
-  const [company, setCompany] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [mentorStatus, setMentorStatus] = useState("no");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    first_name: "",
+    last_name: "",
+    batch_year: "",
+    course: "",
+  });
 
   const [signupError, setSignupError] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSignupError(null);
 
+    console.log("Form Data:", formData); // Log the form data
+
     try {
-      if (!email || !password || !fullName) {
+      if (
+        !formData.email ||
+        !formData.password ||
+        !formData.first_name ||
+        !formData.last_name
+      ) {
         setSignupError("Please fill in all required fields");
         return;
       }
 
-      if (password !== confirmPassword) {
+      if (formData.password !== formData.confirmPassword) {
         setSignupError("Passwords do not match");
         return;
       }
 
-      const nameParts = fullName.split(" ");
-      const signupData = {
-        email,
-        password,
-        first_name: nameParts[0],
-        last_name: nameParts.slice(1).join(" ") || "",
-        graduation_year: graduationYear,
-        degree,
-        current_job: currentJob,
-        company,
-        industry,
-        mentor_status: mentorStatus === "yes",
-      };
-
       const response = await axios.post(
         "http://localhost:5000/api/signup",
-        signupData
+        formData
       );
 
       if (response.data) {
@@ -60,7 +56,7 @@ const SignUpPage = () => {
           token: response.data.token,
           user: response.data.user,
         });
-        navigate("/home");
+        navigate("/profile");
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -98,187 +94,96 @@ const SignUpPage = () => {
             onSubmit={handleSubmit}
           >
             <div>
-              <label
-                htmlFor="fullName"
-                className="block mb-2 text-sm text-text"
-              >
-                Full Name
-              </label>
+              <label className="block mb-2 text-sm text-text">First Name</label>
               <input
                 type="text"
-                id="fullName"
-                name="fullName"
-                placeholder="Juan Dela Cruz"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                name="first_name"
+                placeholder="Juan"
+                value={formData.first_name}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm text-text">
+              <label className="block mb-2 text-sm text-text">Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                placeholder="Dela Cruz"
+                value={formData.last_name}
+                onChange={handleChange}
+                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-2 text-sm text-text">
                 Email address
               </label>
               <input
                 type="email"
-                id="email"
                 name="email"
                 placeholder="juandelacruz@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
                 required
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block mb-2 text-sm text-text"
-              >
-                Password
-              </label>
+              <label className="block mb-2 text-sm text-text">Password</label>
               <input
                 type="password"
-                id="password"
                 name="password"
                 placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
                 required
               />
             </div>
 
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block mb-2 text-sm text-text"
-              >
+              <label className="block mb-2 text-sm text-text">
                 Confirm password
               </label>
               <input
                 type="password"
-                id="confirmPassword"
                 name="confirmPassword"
                 placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
                 required
               />
             </div>
 
             <div>
-              <label
-                htmlFor="graduationYear"
-                className="block mb-2 text-sm text-text"
-              >
-                Graduation Year
-              </label>
+              <label className="block mb-2 text-sm text-text">Batch Year</label>
               <input
                 type="number"
-                id="graduationYear"
-                name="graduationYear"
+                name="batch_year"
                 placeholder="YYYY"
-                min="1900"
-                max="2099"
-                value={graduationYear}
-                onChange={(e) => setGraduationYear(e.target.value)}
+                value={formData.batch_year}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
               />
             </div>
 
             <div>
-              <label htmlFor="degree" className="block mb-2 text-sm text-text">
-                Degree
-              </label>
+              <label className="block mb-2 text-sm text-text">Course</label>
               <input
                 type="text"
-                id="degree"
-                name="degree"
+                name="course"
                 placeholder="Bachelor of Science in..."
-                value={degree}
-                onChange={(e) => setDegree(e.target.value)}
+                value={formData.course}
+                onChange={handleChange}
                 className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
               />
-            </div>
-            <div>
-              <label
-                htmlFor="currentJob"
-                className="block mb-2 text-sm text-text"
-              >
-                Current Job Title
-              </label>
-              <input
-                type="text"
-                id="currentJob"
-                name="currentJob"
-                placeholder="Software Engineer"
-                value={currentJob}
-                onChange={(e) => setCurrentJob(e.target.value)}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="company" className="block mb-2 text-sm text-text">
-                Current Company
-              </label>
-              <input
-                type="text"
-                id="company"
-                name="company"
-                placeholder="Company name..."
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="industry"
-                className="block mb-2 text-sm text-text"
-              >
-                Industry
-              </label>
-              <input
-                type="text"
-                id="industry"
-                name="industry"
-                placeholder="Technology"
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="mentorStatus"
-                className="block mb-2 text-sm text-text"
-              >
-                Are you willing to be a mentor?
-              </label>
-              <select
-                id="mentorStatus"
-                name="mentorStatus"
-                value={mentorStatus}
-                onChange={(e) => setMentorStatus(e.target.value)}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              >
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-                <option value="maybe">Maybe in the future</option>
-              </select>
             </div>
 
             <button

@@ -1,213 +1,436 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
+import { Plus, Trash2, Edit, Eye } from "lucide-react";
 import axios from "axios";
-import {
-  Users,
-  Briefcase,
-  NewspaperIcon,
-  BookOpen,
-  Heart,
-  Megaphone,
-  UserCog,
-  Trash2,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import MentorshipManagement from "./MentorshipManagement";
 
-const NewsManagement = () => {
-  const [news, setNews] = useState([]);
-  const [formData, setFormData] = useState({
-    title: "",
-    excerpt: "",
-    image: null,
-  });
+const BASE_URL = "http://localhost:5000";
 
-  const api = axios.create({
-    baseURL: "http://localhost:5000",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
+const AdminDashboard = () => {
+  const [activeSection, setActiveSection] = useState("news");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [file, setFile] = useState(null);
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
+  const sections = useMemo(
+    () => ({
+      news: { title: "News Management", endpoint: "news" },
+      events: { title: "Events Management", endpoint: "events" },
+      alumni: { title: "Alumni Directory", endpoint: "alumni_directory" },
+      journeys: { title: "Alumni Journeys", endpoint: "journeys" },
+    }),
+    []
+  );
 
-  const fetchNews = async () => {
-    const response = await api.get("/api/news");
-    setNews(response.data);
-  };
+  const fetchItems = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${BASE_URL}/api/${sections[activeSection].endpoint}`
+      );
+      setItems(response.data);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeSection, sections]);
+
+  React.useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formDataToSend = new FormData();
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("excerpt", formData.excerpt);
-    if (formData.image) formDataToSend.append("image", formData.image);
+    const form = new FormData();
 
-    await api.post("/api/news", formDataToSend, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const dataToSend = { ...formData };
+    if (activeSection === "news" && dataToSend.description) {
+      dataToSend.excerpt = dataToSend.description;
+      delete dataToSend.description;
+    }
+
+    Object.keys(dataToSend).forEach((key) => {
+      form.append(key, dataToSend[key]);
     });
 
-    setFormData({ title: "", excerpt: "", image: null });
-    fetchNews();
+    if (file) {
+      form.append("image", file);
+    }
+
+    try {
+      if (formData.id) {
+        await axios.put(
+          `${BASE_URL}/api/${sections[activeSection].endpoint}/${formData.id}`,
+          form
+        );
+      } else {
+        await axios.post(
+          `${BASE_URL}/api/${sections[activeSection].endpoint}`,
+          form
+        );
+      }
+      setShowForm(false);
+      setFormData({});
+      setFile(null);
+      fetchItems();
+    } catch (error) {
+      console.error("Error saving item:", error);
+    }
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/api/news/${id}`);
-    setNews(news.filter((item) => item.id !== id));
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      try {
+        await axios.delete(
+          `${BASE_URL}/api/${sections[activeSection].endpoint}/${id}`
+        );
+        fetchItems();
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
+    }
   };
 
-  return (
-    <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-lg p-6 bg-white shadow-lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
+  const renderForm = () => {
+    if (activeSection === "journeys") {
+      return (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="First Name"
+              value={formData.first_name || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, first_name: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={formData.last_name || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, last_name: e.target.value })
+              }
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          <input
+            type="number"
+            placeholder="Graduation Year"
+            value={formData.graduationYear || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, graduationYear: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
           <input
             type="text"
-            name="title"
-            placeholder="News Title"
-            value={formData.title}
+            placeholder="Current Job"
+            value={formData.current_job || ""}
             onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
+              setFormData({ ...formData, current_job: e.target.value })
             }
-            className="w-full px-4 py-2 bg-white border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-black placeholder:text-black/60 text-sm"
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Company"
+            value={formData.company || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, company: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Industry"
+            value={formData.industry || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, industry: e.target.value })
+            }
+            className="w-full p-2 border rounded"
             required
           />
           <textarea
-            name="excerpt"
-            placeholder="News Excerpt"
-            value={formData.excerpt}
+            placeholder="Your Journey Story"
+            value={formData.story || ""}
             onChange={(e) =>
-              setFormData({ ...formData, excerpt: e.target.value })
+              setFormData({ ...formData, story: e.target.value })
             }
-            className="w-full px-4 py-2 h-24 bg-white border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-black placeholder:text-black/60 text-sm"
+            className="w-full p-2 border rounded"
+            rows="5"
+            required
+          />
+        </>
+      );
+    }
+
+    if (activeSection === "alumni") {
+      return (
+        <>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={formData.full_name || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, full_name: e.target.value })
+            }
+            className="w-full p-2 border rounded"
             required
           />
           <input
-            type="file"
-            name="image"
+            type="text"
+            placeholder="Degree"
+            value={formData.degree || ""}
             onChange={(e) =>
-              setFormData({ ...formData, image: e.target.files[0] })
+              setFormData({ ...formData, degree: e.target.value })
             }
-            className="w-full px-4 py-2 bg-white border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-black/5 text-black text-sm"
-            accept="image/*"
+            className="w-full p-2 border rounded"
+            required
           />
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black/5 transition duration-200"
-          >
-            Add News
-          </button>
-        </form>
-      </motion.div>
+          <input
+            type="number"
+            placeholder="Batch Year"
+            value={formData.batch_year || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, batch_year: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            placeholder="Achievements"
+            value={formData.achievements || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, achievements: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            rows="3"
+          />
+        </>
+      );
+    }
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {news.map((item) => (
-          <motion.div
-            key={item.id}
-            whileHover={{ scale: 1.02 }}
-            className="rounded-lg overflow-hidden bg-white shadow-lg"
+    if (activeSection === "events") {
+      return (
+        <>
+          <input
+            type="text"
+            placeholder="Title"
+            value={formData.title || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
+          <textarea
+            placeholder="Excerpt"
+            value={formData.excerpt || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, excerpt: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            rows="3"
+          />
+          <input
+            type="date"
+            value={formData.event_date || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, event_date: e.target.value })
+            }
+            className="w-full p-2 border rounded"
+            required
+          />
+          <select
+            value={formData.status || "upcoming"}
+            onChange={(e) =>
+              setFormData({ ...formData, status: e.target.value })
+            }
+            className="w-full p-2 border rounded"
           >
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-black text-xl font-bold">{item.title}</h3>
-                <Megaphone className="h-6 w-6 text-black/70" />
-              </div>
-              <p className="text-black/70 mb-4">{item.excerpt}</p>
-              {item.image && (
-                <img
-                  src={`http://localhost:5000${item.image}`}
-                  alt={item.title}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-              )}
-              <button
-                onClick={() => handleDelete(item.id)}
-                className="flex items-center space-x-2 bg-black text-white py-2 px-4 rounded-lg hover:bg-black/90 focus:outline-none focus:ring-2 focus:ring-black/5 transition duration-200"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Delete</span>
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-};
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </>
+      );
+    }
 
-const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("news");
-  const tabs = [
-    { name: "news", icon: Megaphone },
-    { name: "alumni", icon: UserCog },
-    { name: "honorem", icon: Heart },
-    { name: "jobs", icon: Briefcase },
-    { name: "journey", icon: BookOpen },
-    { name: "mentorship", icon: Users },
-  ];
+    return (
+      <>
+        <input
+          type="text"
+          placeholder="Title"
+          value={formData.title || ""}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <textarea
+          placeholder="Excerpt"
+          value={formData.excerpt || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, excerpt: e.target.value })
+          }
+          className="w-full p-2 border rounded"
+          rows="3"
+        />
+      </>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-white text-black pt-12 pb-6">
-      <div className="flex items-center p-4 border-b border-black/10">
-        <div className="flex items-center">
-          <img
-            src={`${process.env.PUBLIC_URL}/images/HomepageLogo.svg`}
-            alt="LCCB Logo"
-            className="h-8 w-auto"
-          />
-        </div>
-      </div>
+    <div className="min-h-screen bg-white">
+      <nav className="bg-black text-white p-4">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      </nav>
 
-      <main className="p-8 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h2 className="text-black text-xl font-bold mb-2">Admin Dashboard</h2>
-          <p className="text-black/70">
-            Manage and maintain the Consolacion Connect platform
-          </p>
-        </div>
+      <div className="flex">
+        <aside className="w-64 bg-gray-100 min-h-screen p-4">
+          {Object.entries(sections).map(([key, { title }]) => (
+            <button
+              key={key}
+              onClick={() => setActiveSection(key)}
+              className={`w-full text-left p-2 mb-2 rounded ${
+                activeSection === key
+                  ? "bg-black text-white"
+                  : "hover:bg-gray-200"
+              }`}
+            >
+              {title}
+            </button>
+          ))}
+        </aside>
 
-        <div className="rounded-lg overflow-hidden bg-white shadow-lg">
-          <div className="border-b border-black/10">
-            <div className="flex overflow-x-auto">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.name}
-                  className={`flex items-center space-x-2 px-6 py-3 font-medium transition duration-200 border-b-2 whitespace-nowrap
-                      ${
-                        activeTab === tab.name
-                          ? "border-black text-black"
-                          : "border-transparent text-black/60 hover:text-black"
-                      }`}
-                  onClick={() => setActiveTab(tab.name)}
-                >
-                  <tab.icon className="h-5 w-5" />
-                  <span>
-                    {tab.name.charAt(0).toUpperCase() + tab.name.slice(1)}{" "}
-                    Management
-                  </span>
-                </button>
-              ))}
+        <main className="flex-1 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">
+              {sections[activeSection].title}
+            </h2>
+            <button
+              onClick={() => {
+                setFormData({});
+                setShowForm(true);
+              }}
+              className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800"
+            >
+              <Plus className="w-4 h-4" />
+              Add New
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-6 py-3 text-left">
+                      {activeSection === "journeys" ? "Name" : "Title/Name"}
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      {activeSection === "journeys" ? "Current Job" : "Date"}
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      {activeSection === "journeys" ? "Company" : "Status"}
+                    </th>
+                    <th className="px-6 py-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => (
+                    <tr key={item.id} className="border-t">
+                      <td className="px-6 py-4">
+                        {activeSection === "journeys"
+                          ? `${item.first_name} ${item.last_name}`
+                          : item.title || item.full_name}
+                      </td>
+                      <td className="px-6 py-4">
+                        {activeSection === "journeys"
+                          ? item.current_job
+                          : new Date(
+                              item.event_date || item.created_at
+                            ).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        {activeSection === "journeys"
+                          ? item.company
+                          : item.status || "Active"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => {
+                              setFormData(item);
+                              setShowForm(true);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="p-1 hover:bg-gray-100 rounded text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <button className="p-1 hover:bg-gray-100 rounded">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          <div className="p-6">
-            {activeTab === "news" ? (
-              <NewsManagement />
-            ) : activeTab === "mentorship" ? (
-              <MentorshipManagement />
-            ) : (
-              <div className="text-center py-8 text-black/70">
-                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}{" "}
-                Management coming soon
+          {showForm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                <h3 className="text-xl font-semibold mb-4">
+                  {formData.id ? "Edit" : "Add New"} Item
+                </h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {renderForm()}
+                  <input
+                    type="file"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    className="w-full p-2 border rounded"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="px-4 py-2 border rounded hover:bg-gray-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </form>
               </div>
-            )}
-          </div>
-        </div>
-      </main>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 };
