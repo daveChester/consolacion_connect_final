@@ -39,80 +39,75 @@ const Header = () => {
     navigate("/landing-page");
   };
 
-  const NavItems = ({ mobile = false }) => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useContext(AuthContext);
-
-    return (
-      <ul
-        className={`${
-          mobile ? "flex flex-col space-y-4" : "flex space-x-9"
-        } text-text font-inter text-[15px] font-normal`}
-      >
-        {isAuthenticated ? (
-          <>
-            <li>
-              <Link
-                to="/home"
-                className={`${isActive("/home")} transition-colors`}
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/alumni-directory"
-                className={`${isActive("/alumni-directory")} transition-colors`}
-              >
-                Alumni Directory
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/news"
-                className={`${isActive("/news")} transition-colors`}
-              >
-                News
-              </Link>
-            </li>
-            <li className="relative">
-              <button
-                className={`${isActive(
-                  "/connect"
-                )} transition-colors flex items-center`}
-                onClick={() => setIsConnectOpen(!isConnectOpen)}
-              >
-                Connect
-                <ChevronDown className="ml-1 size-3.5" />
-              </button>
-              {isConnectOpen && (
-                <ul className="absolute left-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden z-10">
-                  {connectSubmenu.map((item) => (
-                    <li key={item.path}>
-                      <Link
-                        to={item.path}
-                        className="block px-4 py-2 text-sm text-text hover:bg-gold/90"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-            <li>
-              <Link
-                to="/give-back"
-                className={`${isActive("/give-back")} transition-colors`}
-              >
-                Give Back
-              </Link>
-            </li>
-          </>
-        ) : null}
-      </ul>
-    );
-  };
+  const NavItems = ({ mobile = false }) => (
+    <ul
+      className={`${
+        mobile ? "flex flex-col space-y-4" : "flex space-x-9"
+      } text-text font-inter text-[15px] font-normal`}
+    >
+      {isAuthenticated ? (
+        <>
+          <li>
+            <Link
+              to="/home"
+              className={`${isActive("/home")} transition-colors`}
+            >
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/alumni-directory"
+              className={`${isActive("/alumni-directory")} transition-colors`}
+            >
+              Alumni Directory
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/news"
+              className={`${isActive("/news")} transition-colors`}
+            >
+              News
+            </Link>
+          </li>
+          <li className="relative">
+            <button
+              className={`${isActive(
+                "/connect"
+              )} transition-colors flex items-center`}
+              onClick={() => setIsConnectOpen(!isConnectOpen)}
+            >
+              Connect
+              <ChevronDown className="ml-1 size-3.5" />
+            </button>
+            {isConnectOpen && (
+              <ul className="absolute left-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden z-10">
+                {connectSubmenu.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      className="block px-4 py-2 text-sm text-text hover:bg-gold/90"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+          <li>
+            <Link
+              to="/give-back"
+              className={`${isActive("/give-back")} transition-colors`}
+            >
+              Give Back
+            </Link>
+          </li>
+        </>
+      ) : null}
+    </ul>
+  );
 
   return (
     <header className="bg-background h-[60px] flex items-center justify-between sticky top-0 z-50">
@@ -141,16 +136,12 @@ const Header = () => {
               <button
                 className="flex items-center space-x-2 text-text hover:text-gold"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                onMouseEnter={() => setIsProfileOpen(true)}
               >
                 <User size={20} />
                 <span>Profile</span>
               </button>
               {isProfileOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden"
-                  onMouseLeave={() => setIsProfileOpen(false)}
-                >
+                <div className="absolute right-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden">
                   <Link
                     to="/profile"
                     className="block px-4 py-2 text-sm text-text hover:bg-gold/90"

@@ -10,16 +10,16 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
-  // File filtering
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true); // Accepts the file
-    } else {
-      cb(new Error("Invalid file type bossing"));
-    }
-  },
+  dest: "public/uploads/",
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "public/uploads/");
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, uniqueSuffix + path.extname(file.originalname));
+    },
+  }),
 });
 
 module.exports = upload;

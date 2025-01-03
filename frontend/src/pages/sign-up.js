@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import axios from "axios";
 import { ArrowRight } from "lucide-react";
+import FormField from "../components/FormField";
 
 const SignUpPage = () => {
   const { login } = useContext(AuthContext);
@@ -28,7 +29,7 @@ const SignUpPage = () => {
     event.preventDefault();
     setSignupError(null);
 
-    console.log("Form Data:", formData); // Log the form data
+    console.log("Form Data:", formData);
 
     try {
       if (
@@ -93,98 +94,70 @@ const SignUpPage = () => {
             className="grid grid-cols-1 gap-6 mt-12 md:grid-cols-2 font-inter text-[15px]"
             onSubmit={handleSubmit}
           >
-            <div>
-              <label className="block mb-2 text-sm text-text">First Name</label>
-              <input
-                type="text"
-                name="first_name"
-                placeholder="Juan"
-                value={formData.first_name}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
+            <FormField
+              label="First Name"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              placeholder="Juan"
+              required
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">Last Name</label>
-              <input
-                type="text"
-                name="last_name"
-                placeholder="Dela Cruz"
-                value={formData.last_name}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
+            <FormField
+              label="Last Name"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+              placeholder="Dela Cruz"
+              required
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">
-                Email address
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="juandelacruz@gmail.com"
-                value={formData.email}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
+            <FormField
+              label="Email address"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="juandelacruz@gmail.com"
+              required
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
+            <FormField
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">
-                Confirm password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-                required
-              />
-            </div>
+            <FormField
+              label="Confirm password"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm your password"
+              required
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">Batch Year</label>
-              <input
-                type="number"
-                name="batch_year"
-                placeholder="YYYY"
-                value={formData.batch_year}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-              />
-            </div>
+            <FormField
+              label="Batch Year"
+              type="number"
+              name="batch_year"
+              value={formData.batch_year}
+              onChange={handleChange}
+              placeholder="YYYY"
+            />
 
-            <div>
-              <label className="block mb-2 text-sm text-text">Course</label>
-              <input
-                type="text"
-                name="course"
-                placeholder="Bachelor of Science in..."
-                value={formData.course}
-                onChange={handleChange}
-                className="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40"
-              />
-            </div>
+            <FormField
+              label="Course"
+              name="course"
+              value={formData.course}
+              onChange={handleChange}
+              placeholder="Bachelor of Science in..."
+            />
 
             <button
               type="submit"

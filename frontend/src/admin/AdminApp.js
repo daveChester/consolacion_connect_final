@@ -2,15 +2,13 @@
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import AdminHeader from "./components/AdminHeader";
 import AdminDashboard from "./pages/AdminDashboard";
 
 const AdminApp = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <>
-      <AdminHeader logout={logout} />
       <Routes>
         <Route
           path="/admin-dashboard"
