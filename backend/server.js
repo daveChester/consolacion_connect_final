@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -9,7 +8,6 @@ const crudController = require("./controllers/crudController");
 
 const app = express();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/uploads/");
@@ -23,11 +21,10 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
 });
 
-// CORS configuration
 const corsOptions = {
   origin: ["http://localhost:3000", "http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -35,23 +32,21 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization", "User-ID"],
 };
 
-// Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// Unprotected routes
 app.post("/api/login", userController.login);
 app.post("/api/signup", userController.createUser);
 app.get("/api/check-email/:email", userController.checkEmail);
 app.post("/api/admin/login", userController.adminLogin);
 
-// User routes
 app.get("/api/users/:id", userController.getUser);
 app.put(
   "/api/users/:id",
   upload.fields([
+    { name: "profile_picture", maxCount: 1 },
     { name: "front_id_picture", maxCount: 1 },
     { name: "back_id_picture", maxCount: 1 },
   ]),
@@ -63,7 +58,6 @@ app.get("/api/alumni_directory/unverified", userController.getUnverifiedUsers);
 app.put("/api/alumni_directory/:id/verify", userController.verifyUser);
 app.delete("/api/users/:id", userController.deleteUser);
 
-// Protected generic CRUD routes
 app.get("/api/:entity", crudController.handleCrudOperations);
 app.post(
   "/api/:entity",
@@ -77,7 +71,6 @@ app.put(
 );
 app.delete("/api/:entity/:id", crudController.handleCrudOperations);
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err);
 
@@ -104,7 +97,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Handle 404 errors
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });

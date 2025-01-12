@@ -1,9 +1,11 @@
+//userController.js
 const db = require("../db/dbConfig");
 const upload = require("../middleware/upload");
 
 exports.createUser = async (req, res) => {
   try {
     const uploadMiddleware = upload.fields([
+      { name: "profile_picture", maxCount: 1 },
       { name: "front_id_picture", maxCount: 1 },
       { name: "back_id_picture", maxCount: 1 },
     ]);
@@ -16,7 +18,10 @@ exports.createUser = async (req, res) => {
       const { email, password, first_name, last_name, batch_year, course } =
         req.body;
 
-      // Check if req.files exists before accessing it
+      const profilePicture =
+        req.files && req.files["profile_picture"]
+          ? req.files["profile_picture"][0]
+          : null;
       const frontIdFile =
         req.files && req.files["front_id_picture"]
           ? req.files["front_id_picture"][0]
@@ -29,8 +34,8 @@ exports.createUser = async (req, res) => {
       const tempStudentId = `TEMP${Date.now()}`;
 
       const query = `
-        INSERT INTO users (email, password, first_name, last_name, batch_year, course, student_id, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (email, password, first_name, last_name, batch_year, course, student_id, profile_picture, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       const values = [
@@ -41,6 +46,7 @@ exports.createUser = async (req, res) => {
         batch_year || null,
         course || null,
         tempStudentId,
+        profilePicture ? profilePicture.filename : null,
         frontIdFile && backIdFile ? "verified" : "unverified",
       ];
 
@@ -96,7 +102,6 @@ exports.verifyUser = async (req, res) => {
       "UPDATE users SET verification_status = 'verified' WHERE user_id = ?";
     await db.query(query, [userId]);
 
-    // Fetch updated user data
     const [updatedUser] = await db.query(
       "SELECT * FROM users WHERE user_id = ?",
       [userId]
@@ -128,9 +133,8 @@ exports.updateUser = async (req, res) => {
     }
 
     const updateData = { ...req.body };
-    delete updateData.verification_status; // Prevent direct modification of verification status
+    delete updateData.verification_status;
 
-    // Clean up updateData by removing empty strings, undefined, and null values
     Object.keys(updateData).forEach((key) => {
       if (
         updateData[key] === "" ||
@@ -141,12 +145,14 @@ exports.updateUser = async (req, res) => {
       }
     });
 
-    // Handle file uploads if they exist
     if (req.files) {
-      if (req.files.front_id_picture?.[0]) {
+      if (req.files && req.files.profile_picture) {
+        updateData.profile_picture = req.files.profile_picture[0].filename;
+      }
+      if (req.files.front_id_picture && req.files.front_id_picture[0]) {
         updateData.front_id_picture = req.files.front_id_picture[0].filename;
       }
-      if (req.files.back_id_picture?.[0]) {
+      if (req.files.back_id_picture && req.files.back_id_picture[0]) {
         updateData.back_id_picture = req.files.back_id_picture[0].filename;
       }
     }
@@ -157,7 +163,6 @@ exports.updateUser = async (req, res) => {
         .json({ message: "No valid data provided for update" });
     }
 
-    // Build the SQL query
     const setClause = Object.keys(updateData)
       .map((key) => `${key} = ?`)
       .join(", ");
@@ -166,16 +171,15 @@ exports.updateUser = async (req, res) => {
 
     await db.query(query, values);
 
-    // Fetch updated user data
     const [updatedUser] = await db.query(
       "SELECT * FROM users WHERE user_id = ?",
       [userId]
     );
+
     if (!updatedUser || updatedUser.length === 0) {
       return res.status(404).json({ message: "User not found after update" });
     }
 
-    // Remove sensitive data
     const userData = { ...updatedUser[0] };
     delete userData.password;
 

@@ -1,9 +1,8 @@
-// middleware/upload.js
 const multer = require("multer");
 const path = require("path");
 
 const storage = multer.diskStorage({
-  destination: "./public/uploads/", // Make sure this directory exists
+  destination: "./public/uploads/",
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`);
   },

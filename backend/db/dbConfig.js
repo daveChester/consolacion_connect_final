@@ -1,4 +1,3 @@
-//dbConfig.js
 const mysql = require("mysql2");
 
 const pool = mysql.createPool({
@@ -11,7 +10,6 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// Test the connection
 pool.getConnection((err, connection) => {
   if (err) {
     console.error("Database connection failed:", err);
