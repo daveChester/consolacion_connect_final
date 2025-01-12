@@ -1,4 +1,3 @@
-// frontend/src/admin/AdminApp.js
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
@@ -20,7 +19,6 @@ const AdminApp = () => {
             )
           }
         />
-        {/* Default route for /admin */}
         <Route path="/" element={<Navigate to="/admin-dashboard" replace />} />
       </Routes>
     </>

@@ -123,11 +123,12 @@ const HomePage = () => {
         </div>
 
         <div
-          className={`p-8 absolute top-[calc(60px+2rem)] left-4 md:left-12 rounded-xl z-10 w-[90%] md:w-[357px] h-auto ${
+          className={`p-8 absolute top-[calc(60px+2rem)] left-4 md:left-12 rounded-xl w-[90%] md:w-[357px] h-auto ${
             isAuthenticated ? "md:h-[210px]" : "md:h-[357px]"
           }`}
           style={{
             background: `linear-gradient(30deg, #24243F, #5E5EA5)`,
+            zIndex: 30,
           }}
         >
           {isAuthenticated ? (

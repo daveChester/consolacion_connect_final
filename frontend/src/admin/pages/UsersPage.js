@@ -19,6 +19,25 @@ const UserModal = ({ user, onClose, onVerify, isPending }) => {
         <h3 className="text-xl font-semibold mb-4">User Details</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
+            {user.profile_picture && (
+              <div className="mb-6 flex itmes-left">
+                <img
+                  src={`http://localhost:5000/uploads/${user.profile_picture}`}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-2 border-darker-blue"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = "none";
+                    const fallbackDiv = e.target.parentElement;
+                    if (fallbackDiv) {
+                      fallbackDiv.innerHTML = `<div class="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center border-4 border-blue-600">
+                    <span class="text-4xl text-blue-600 font-semibold">${user.first_name[0]}${user.last_name[0]}</span>
+                  </div>`;
+                    }
+                  }}
+                />
+              </div>
+            )}
             <p className="font-semibold">Name:</p>
             <p>{`${user.first_name} ${user.last_name}`}</p>
           </div>

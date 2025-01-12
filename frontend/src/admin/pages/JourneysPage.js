@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Plus, Trash2, Edit, Eye } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import axios from "axios";
 
 const BASE_URL = "http://localhost:5000";
@@ -11,6 +11,7 @@ const JourneysPage = () => {
   const [selectedJourney, setSelectedJourney] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
+  const [file, setFile] = useState(null);
 
   const fetchItems = useCallback(async () => {
     try {
@@ -30,28 +31,25 @@ const JourneysPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = new FormData();
+    const dataToSend = { ...formData };
+
+    Object.keys(dataToSend).forEach((key) => {
+      form.append(key, dataToSend[key]);
+    });
+
+    if (file) {
+      form.append("image", file);
+    }
+
     try {
-      if (formData.id) {
-        await axios.put(`${BASE_URL}/api/journeys/${formData.id}`, formData);
-      } else {
-        await axios.post(`${BASE_URL}/api/journeys`, formData);
-      }
+      await axios.post(`${BASE_URL}/api/journeys`, form);
       setShowForm(false);
       setFormData({});
+      setFile(null);
       fetchItems();
     } catch (error) {
       console.error("Error saving journey:", error);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this journey?")) {
-      try {
-        await axios.delete(`${BASE_URL}/api/journeys/${id}`);
-        fetchItems();
-      } catch (error) {
-        console.error("Error deleting journey:", error);
-      }
     }
   };
 
@@ -60,6 +58,15 @@ const JourneysPage = () => {
       <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <h3 className="text-xl font-semibold mb-4">Alumni Journey Details</h3>
         <div className="space-y-4">
+          {journey.image && (
+            <div className="mb-4">
+              <img
+                src={`${BASE_URL}${journey.image}`}
+                alt={`${journey.first_name} ${journey.last_name}`}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+            </div>
+          )}
           <div>
             <p className="font-semibold">Name:</p>
             <p>{`${journey.first_name} ${journey.last_name}`}</p>
@@ -104,6 +111,7 @@ const JourneysPage = () => {
         <button
           onClick={() => {
             setFormData({});
+            setFile(null);
             setShowForm(true);
           }}
           className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800"
@@ -145,21 +153,6 @@ const JourneysPage = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => {
-                          setFormData(item);
-                          setShowForm(true);
-                        }}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-1 hover:bg-gray-100 rounded text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </td>
                 </tr>
@@ -172,9 +165,7 @@ const JourneysPage = () => {
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h3 className="text-xl font-semibold mb-4">
-              {formData.id ? "Edit" : "Add New"} Journey
-            </h3>
+            <h3 className="text-xl font-semibold mb-4">Add New Journey</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input
@@ -248,6 +239,17 @@ const JourneysPage = () => {
                 rows="5"
                 required
               />
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-600">
+                  Profile Photo
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="w-full p-2 border rounded"
+                  accept="image/*"
+                />
+              </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"

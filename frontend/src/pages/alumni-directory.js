@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../AuthContext";
+import { Dropdown } from "../components/Dropdown";
 
 const AlumniDirectory = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ const AlumniDirectory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+  const [isCourseDropdownOpen, setIsCourseDropdownOpen] = useState(false);
 
   const isCurrentUserVerified = currentUser?.verification_status === "verified";
 
@@ -32,7 +35,6 @@ const AlumniDirectory = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/users");
-        // Only show verified users in the directory
         const verifiedUsers = response.data.filter(
           (user) => user.verification_status === "verified"
         );
@@ -64,31 +66,6 @@ const AlumniDirectory = () => {
 
     setFilteredUsers(filtered);
   }, [searchQuery, filters, users]);
-
-  const FilterSelect = ({ label, name, options, value, onChange }) => (
-    <div className="w-full md:w-auto">
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-text mb-2 font-inter"
-      >
-        {label}
-      </label>
-      <select
-        id={name}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full px-4 py-2 border border-text/30 rounded-md focus:border-blue3 focus:ring-blue3 focus:outline-none focus:ring focus:ring-opacity-40 bg-white text-gray-700 font-inter"
-      >
-        <option value="">All</option>
-        {options.map((option) => (
-          <option key={option} value={option} className="font-inter">
-            {option}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 
   const ProfileModal = ({ user, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-6">
@@ -232,83 +209,109 @@ const AlumniDirectory = () => {
     </div>
   );
 
-  const UserCard = ({ user }) => (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
-      <div className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-blue1 rounded-full flex items-center justify-center">
-            <span className="text-2xl text-white font-semibold font-inter">
-              {user.first_name[0]}
-              {isCurrentUserVerified && user.last_name[0]}
-            </span>
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-text font-inter">
-              {isCurrentUserVerified
-                ? `${user.first_name} ${user.last_name}`
-                : user.first_name}
-            </h3>
-          </div>
-        </div>
+  const UserCard = ({ user }) => {
+    const profileImageUrl = user.profile_picture
+      ? `http://localhost:5000/uploads/${user.profile_picture}`
+      : null;
 
-        {isCurrentUserVerified && (
-          <div className="mt-4 space-y-2 font-inter">
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Course:</span> {user.course}
-            </p>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Batch Year:</span> {user.batch_year}
-            </p>
+    return (
+      <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
+        <div className="p-6">
+          <div className="flex items-center space-x-4">
+            {profileImageUrl ? (
+              <img
+                src={profileImageUrl}
+                alt={`${user.first_name}'s profile`}
+                className="size-16 rounded-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = "none";
+                  const fallbackDiv = e.target.nextElementSibling;
+                  if (fallbackDiv) {
+                    fallbackDiv.style.display = "flex";
+                  }
+                }}
+              />
+            ) : null}
+            <div
+              className={`size-16 bg-blue1 rounded-full flex items-center justify-center ${
+                profileImageUrl ? "hidden" : ""
+              }`}
+            >
+              <span className="text-2xl text-white font-semibold font-inter">
+                {user.first_name[0]}
+                {isCurrentUserVerified && user.last_name[0]}
+              </span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-text font-inter tracking-wide">
+                {isCurrentUserVerified
+                  ? `${user.first_name} ${user.last_name}`
+                  : user.first_name}
+              </h3>
+            </div>
           </div>
-        )}
 
-        <div className="mt-6 flex justify-end">
-          {isCurrentUserVerified ? (
-            <button
-              onClick={() => {
-                setSelectedUser(user);
-                setShowModal(true);
-              }}
-              className="text-blue3 hover:text-blue3/80 font-medium flex items-center font-inter"
-            >
-              View Profile
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 ml-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/profile")}
-              className="text-gray-500 hover:text-gray-700 font-medium flex items-center font-inter"
-            >
-              Get Verified to View
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 ml-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+          {isCurrentUserVerified && (
+            <div className="mt-4 space-y-2 font-inter">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Course:</span> {user.course}
+              </p>
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Batch Year:</span>{" "}
+                {user.batch_year}
+              </p>
+            </div>
           )}
+
+          <div className="mt-6 flex justify-end">
+            {isCurrentUserVerified ? (
+              <button
+                onClick={() => {
+                  setSelectedUser(user);
+                  setShowModal(true);
+                }}
+                className="text-blue3 hover:text-blue3/80 font-medium flex items-center font-inter"
+              >
+                View Profile
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 ml-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/profile")}
+                className="text-darker-blue/80 hover:text-gold font-medium flex items-center font-inter text-sm"
+              >
+                Get Verified to View
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 ml-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const batchYears = [...new Set(users.map((user) => user.batch_year))]
     .filter(Boolean)
@@ -316,6 +319,41 @@ const AlumniDirectory = () => {
   const courses = [...new Set(users.map((user) => user.course))].filter(
     Boolean
   );
+
+  const batchYearItems = [
+    {
+      label: "All",
+      path: "#",
+      onClick: () => handleFilterChange("batchYear", ""),
+    },
+    ...batchYears.map((year) => ({
+      label: year.toString(),
+      path: "#",
+      onClick: () => handleFilterChange("batchYear", year.toString()),
+    })),
+  ];
+
+  const courseItems = [
+    {
+      label: "All",
+      path: "#",
+      onClick: () => handleFilterChange("course", ""),
+    },
+    ...courses.map((course) => ({
+      label: course,
+      path: "#",
+      onClick: () => handleFilterChange("course", course),
+    })),
+  ];
+
+  const handleFilterChange = (filterType, value) => {
+    setFilters((prev) => ({ ...prev, [filterType]: value }));
+    if (filterType === "batchYear") {
+      setIsYearDropdownOpen(false);
+    } else {
+      setIsCourseDropdownOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-6 py-12">
@@ -346,24 +384,34 @@ const AlumniDirectory = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FilterSelect
-                label="Batch Year"
-                name="batchYear"
-                options={batchYears}
-                value={filters.batchYear}
-                onChange={(e) =>
-                  setFilters({ ...filters, batchYear: e.target.value })
-                }
-              />
-              <FilterSelect
-                label="Course"
-                name="course"
-                options={courses}
-                value={filters.course}
-                onChange={(e) =>
-                  setFilters({ ...filters, course: e.target.value })
-                }
-              />
+              <div>
+                <label className="block text-sm font-medium text-text mb-2 font-inter">
+                  Batch Year
+                </label>
+                <Dropdown
+                  isOpen={isYearDropdownOpen}
+                  onToggle={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+                  label={filters.batchYear || "All"}
+                  items={batchYearItems}
+                  buttonClassName="w-full px-4 py-2 border border-text/30 rounded-md text-left font-inter text-gray-700"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text mb-2 font-inter">
+                  Course
+                </label>
+                <Dropdown
+                  isOpen={isCourseDropdownOpen}
+                  onToggle={() =>
+                    setIsCourseDropdownOpen(!isCourseDropdownOpen)
+                  }
+                  label={filters.course || "All"}
+                  items={courseItems}
+                  buttonClassName="w-full px-4 py-2 border border-text/30 rounded-md text-left font-inter text-gray-700"
+                  className="w-full"
+                />
+              </div>
             </div>
           </div>
         </div>

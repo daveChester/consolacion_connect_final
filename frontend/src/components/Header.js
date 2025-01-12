@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X, User } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { AuthContext } from "../AuthContext";
+import { Dropdown } from "./Dropdown";
 
 const Header = () => {
   const location = useLocation();
@@ -23,6 +24,28 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown-container")) {
+        setIsConnectOpen(false);
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleConnectClick = () => {
+    setIsConnectOpen(!isConnectOpen);
+    setIsProfileOpen(false);
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(!isProfileOpen);
+    setIsConnectOpen(false);
+  };
+
   const isActive = (path) => {
     return location.pathname === path
       ? "text-gold font-medium"
@@ -33,6 +56,8 @@ const Header = () => {
     { path: "/events", label: "Events" },
     { path: "/journeys", label: "Journeys" },
   ];
+
+  const profileSubmenu = [{ path: "/profile", label: "View Profile" }];
 
   const handleLogout = () => {
     logout();
@@ -71,30 +96,15 @@ const Header = () => {
               News
             </Link>
           </li>
-          <li className="relative">
-            <button
-              className={`${isActive(
-                "/connect"
-              )} transition-colors flex items-center`}
-              onClick={() => setIsConnectOpen(!isConnectOpen)}
-            >
-              Connect
-              <ChevronDown className="ml-1 size-3.5" />
-            </button>
-            {isConnectOpen && (
-              <ul className="absolute left-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden z-10">
-                {connectSubmenu.map((item) => (
-                  <li key={item.path}>
-                    <Link
-                      to={item.path}
-                      className="block px-4 py-2 text-sm text-text hover:bg-gold/90"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <li>
+            <Dropdown
+              isOpen={isConnectOpen}
+              onToggle={handleConnectClick}
+              label="Connect"
+              items={connectSubmenu}
+              buttonClassName={isActive("/connect")}
+              className="left-1/2 -translate-x-1/2"
+            />
           </li>
           <li>
             <Link
@@ -110,7 +120,7 @@ const Header = () => {
   );
 
   return (
-    <header className="bg-background h-[60px] flex items-center justify-between sticky top-0 z-50">
+    <header className="bg-background h-[60px] flex items-center justify-between sticky top-0 z-40">
       <div className="flex-shrink-0">
         <Link to="/home" className="flex items-center">
           <img
@@ -132,30 +142,23 @@ const Header = () => {
         <nav className="flex items-center pr-4">
           <NavItems />
           {isAuthenticated ? (
-            <div className="ml-6 relative">
-              <button
-                className="flex items-center space-x-2 text-text hover:text-gold"
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-              >
-                <User size={20} />
-                <span>Profile</span>
-              </button>
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-36 bg-background shadow-lg rounded-md overflow-hidden">
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-text hover:bg-gold/90"
-                  >
-                    View Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-text hover:bg-gold/90"
-                  >
-                    Log out
-                  </button>
-                </div>
-              )}
+            <div className="ml-6">
+              <Dropdown
+                isOpen={isProfileOpen}
+                onToggle={handleProfileClick}
+                label={
+                  <div className="flex items-center space-x-2">
+                    <User size={20} />
+                    <span>Profile</span>
+                  </div>
+                }
+                items={[
+                  ...profileSubmenu,
+                  { path: "#", label: "Log out", onClick: handleLogout },
+                ]}
+                buttonClassName="text-text hover:text-gold transition-colors"
+                className="right-0"
+              />
             </div>
           ) : (
             <div className="ml-10 flex items-center">
@@ -177,7 +180,7 @@ const Header = () => {
       )}
 
       {isMobile && isMobileMenuOpen && (
-        <div className="absolute top-[60px] left-0 w-full bg-background shadow-lg rounded-md">
+        <div className="absolute top-[60px] left-0 w-full bg-background shadow-lg rounded-md z-45">
           <nav className="p-4">
             <NavItems mobile />
             {!isAuthenticated && (
