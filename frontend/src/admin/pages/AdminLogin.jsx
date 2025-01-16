@@ -1,4 +1,3 @@
-//frontend/AdminLogin.jsx
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
@@ -10,19 +9,33 @@ const AdminLogin = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (email === "admin@example.com" && password === "admin123") {
-      login({
-        user: {
-          email: "admin@example.com",
-          isAdmin: true,
+    try {
+      const response = await fetch("http://localhost:5000/api/checkAdmin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        token: "admin-token",
+        body: JSON.stringify({ email, password }),
       });
-      navigate("/admin/dashboard");
-    } else {
+
+      const data = await response.json();
+
+      if (data.success) {
+        login({
+          user: {
+            email: email,
+            isAdmin: true,
+          },
+          token: "admin-token",
+        });
+        navigate("/admin/dashboard");
+      } else {
+        setError("Invalid admin credentials");
+      }
+    } catch (err) {
       setError("Invalid admin credentials");
     }
   };

@@ -42,6 +42,25 @@ app.post("/api/signup", userController.createUser);
 app.get("/api/check-email/:email", userController.checkEmail);
 app.post("/api/admin/login", userController.adminLogin);
 
+app.post("/api/checkAdmin", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const [results] = await db.query(
+      "SELECT * FROM admin WHERE email = ? AND password = ?",
+      [email, password]
+    );
+
+    if (results.length > 0) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false });
+    }
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 app.get("/api/users/:id", userController.getUser);
 app.put(
   "/api/users/:id",
